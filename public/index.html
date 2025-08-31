@@ -154,7 +154,8 @@
                 }
             }, []);
 
-            const addUrlItem = useCallback((url, genre, comment = '') => {
+            // 🔧 修正: 優先度パラメータを追加
+            const addUrlItem = useCallback((url, genre, priority = 0, comment = '') => {
                 if (url && !urlItems.some(item => item.url === url)) {
                     const newItem = {
                         id: new Date().toISOString() + '_' + Math.random().toString(36).substr(2, 9), // より一意なID
@@ -163,7 +164,7 @@
                         comment, // 🎉 新機能: コメント追加
                         isRead: false,
                         rating: 0,
-                        priority: 0,
+                        priority: priority, // 🔧 修正: 入力された優先度を設定
                         createdAt: new Date().toISOString(),
                     };
                     setUrlItems(prevItems => [...prevItems, newItem]);
@@ -469,6 +470,7 @@
                                     <li><strong>🗑️ クリア</strong>：全てのデータを削除します（取り消し不可）</li>
                                     <li><strong>👥 共有</strong>：このサイトのURLを教えるだけで、友人も個別にデータ管理可能</li>
                                     <li><strong>💬 新機能</strong>：各URLにコメントを追加できるようになりました！</li>
+                                    <li><strong>🔥 最新</strong>：URL追加時に優先度も設定できるようになりました！</li>
                                 </ul>
                             </div>
                         </div>
@@ -477,12 +479,13 @@
             );
         };
 
-        // 🎉 新機能対応: UrlInput コンポーネント（コメント欄追加、既存ジャンル表示対応）
+        // 🎉 新機能対応: UrlInput コンポーネント（コメント欄追加、既存ジャンル表示対応、優先度入力対応）
         const UrlInput = ({ onAdd, urlItems }) => {
             const [url, setUrl] = useState('');
             const [genre, setGenre] = useState('未分類');
             const [customGenre, setCustomGenre] = useState('');
             const [isCustomGenre, setIsCustomGenre] = useState(false);
+            const [priority, setPriority] = useState(0); // 🎉 新機能: 優先度入力
             const [comment, setComment] = useState(''); // 🎉 新機能: コメント欄
 
             // 🔧 修正: 既存ジャンル一覧を生成
@@ -500,11 +503,12 @@
                 e.preventDefault();
                 if (url.trim()) {
                     const finalGenre = isCustomGenre && customGenre.trim() ? customGenre.trim() : genre;
-                    onAdd(url.trim(), finalGenre, comment.trim());
+                    onAdd(url.trim(), finalGenre, priority, comment.trim()); // 🔧 修正: 優先度を追加
                     setUrl('');
                     setGenre('未分類');
                     setCustomGenre('');
                     setIsCustomGenre(false);
+                    setPriority(0); // 優先度リセット
                     setComment(''); // コメントリセット
                 }
             };
@@ -571,6 +575,26 @@
                                 autoFocus
                             />
                         )}
+                    </div>
+                    {/* 🎉 新機能: 優先度選択 */}
+                    <div>
+                        <label htmlFor="priority-select" className="block text-sm font-medium text-slate-700 mb-2 flex items-center">
+                            優先度
+                            <span className="ml-2 px-2 py-1 bg-red-100 text-red-700 text-xs rounded-full">新機能</span>
+                        </label>
+                        <select
+                            id="priority-select"
+                            value={priority}
+                            onChange={(e) => setPriority(parseInt(e.target.value))}
+                            className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                        >
+                            <option value={0}>0 - 優先度なし</option>
+                            <option value={1}>1 - 低</option>
+                            <option value={2}>2 - やや低</option>
+                            <option value={3}>3 - 中</option>
+                            <option value={4}>4 - やや高</option>
+                            <option value={5}>5 - 高</option>
+                        </select>
                     </div>
                     {/* 🎉 新機能: コメント欄 */}
                     <div>
@@ -946,7 +970,7 @@
 
         const CalendarIcon = ({ className }) => (
             <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 002 2z" />
             </svg>
         );
 
