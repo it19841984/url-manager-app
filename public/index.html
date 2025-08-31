@@ -41,7 +41,11 @@
                     if (userData) {
                         const data = JSON.parse(userData);
                         if (data.urlItems && Array.isArray(data.urlItems)) {
-                            setUrlItems(data.urlItems.filter(item => item.url));
+                            const migratedItems = data.urlItems.map(item => ({
+                                ...item,
+                                comment: item.comment || '' // コメント欄追加
+                            }));
+                            setUrlItems(migratedItems.filter(item => item.url));
                             return;
                         }
                     }
@@ -58,6 +62,7 @@
                             priority: item.priority || 0,
                             genre: item.genre || '未分類',
                             createdAt: item.createdAt || new Date().toISOString(),
+                            comment: item.comment || '' // コメント欄追加
                         }));
                         setUrlItems(migratedItems.filter(item => item.url));
                     }
@@ -74,7 +79,7 @@
                         userId: userId,
                         urlItems: urlItems,
                         lastModified: new Date().toISOString(),
-                        appVersion: '2.0'
+                        appVersion: '2.1'
                     };
                     
                     localStorage.setItem('userData', JSON.stringify(userData));
@@ -91,7 +96,7 @@
                     userId: userId,
                     urlItems: urlItems,
                     exportDate: new Date().toISOString(),
-                    appVersion: '2.0',
+                    appVersion: '2.1',
                     totalItems: urlItems.length
                 };
                 
@@ -120,7 +125,11 @@
                             const confirmMessage = `${importedData.urlItems.length}件のWebサイトをインポートしますか？\n現在のデータは上書きされます。`;
                             
                             if (confirm(confirmMessage)) {
-                                setUrlItems(importedData.urlItems);
+                                const migratedItems = importedData.urlItems.map(item => ({
+                                    ...item,
+                                    comment: item.comment || '' // インポート時もコメント欄対応
+                                }));
+                                setUrlItems(migratedItems);
                                 alert('データのインポートが完了しました！');
                             }
                         } else {
@@ -145,12 +154,13 @@
                 }
             }, []);
 
-            const addUrlItem = useCallback((url, genre) => {
+            const addUrlItem = useCallback((url, genre, comment = '') => {
                 if (url && !urlItems.some(item => item.url === url)) {
                     const newItem = {
                         id: new Date().toISOString(),
                         url,
                         genre,
+                        comment, // コメント追加
                         isRead: false,
                         rating: 0,
                         priority: 0,
@@ -188,6 +198,15 @@
                 );
             }, []);
 
+            // コメント更新機能
+            const updateComment = useCallback((id, comment) => {
+                setUrlItems(prevItems =>
+                    prevItems.map(item =>
+                        item.id === id ? { ...item, comment } : item
+                    )
+                );
+            }, []);
+
             const moveUrlItem = useCallback((index, direction) => {
                 setUrlItems(prevItems => {
                     const newItems = [...prevItems];
@@ -220,7 +239,8 @@
                     const matchesGenre = filterGenre === 'すべて' || item.genre === filterGenre;
                     const matchesSearch = searchQuery === '' || 
                         item.url.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        item.genre.toLowerCase().includes(searchQuery.toLowerCase());
+                        item.genre.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        (item.comment && item.comment.toLowerCase().includes(searchQuery.toLowerCase()));
                     const matchesReadStatus = readStatusFilter === 'すべて' ||
                         (readStatusFilter === '未読' && !item.isRead) ||
                         (readStatusFilter === '既読' && item.isRead);
@@ -262,32 +282,35 @@
                                 読みたいものリスト 🔥
                             </h1>
                             <p className="mt-2 text-slate-600">気になるWebサイトをリストアップして、管理しましょう。</p>
-                            <div className="mt-2 text-sm text-slate-500">
+                            <div className="mt-2 text-sm text-blue-600 bg-blue-50 p-2 rounded">
                                 👤 ユーザーID: {getUserId().substr(-8)} | 🕒 最終更新: {new Date().toLocaleString('ja-JP')}
                             </div>
                         </div>
                     </header>
                     
                     <main className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-                        {/* エクスポート・インポート・管理機能 */}
-                        <div className="bg-white p-6 rounded-xl shadow-lg mb-8">
-                            <h2 className="text-xl font-semibold mb-4 text-slate-700">データ管理</h2>
-                            <div className="flex flex-wrap gap-3">
+                        {/* 🎉 新機能: データ管理セクション */}
+                        <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-xl shadow-lg mb-8 border border-green-200">
+                            <h2 className="text-xl font-semibold mb-4 text-slate-700 flex items-center">
+                                🛠️ データ管理
+                                <span className="ml-2 px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">新機能</span>
+                            </h2>
+                            <div className="flex flex-wrap gap-3 mb-4">
                                 <button
                                     onClick={exportData}
-                                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors"
+                                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors flex items-center gap-2"
                                 >
                                     📤 データをエクスポート
                                 </button>
                                 <button
                                     onClick={() => document.getElementById('importFile').click()}
-                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors flex items-center gap-2"
                                 >
                                     📥 データをインポート
                                 </button>
                                 <button
                                     onClick={clearAllData}
-                                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors"
+                                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors flex items-center gap-2"
                                 >
                                     🗑️ 全データクリア
                                 </button>
@@ -299,12 +322,16 @@
                                     style={{ display: 'none' }}
                                 />
                             </div>
-                            <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-                                <h3 className="text-sm font-medium text-blue-800 mb-2">💡 使い方</h3>
+                            <div className="bg-white p-4 rounded-lg border border-blue-200">
+                                <h3 className="text-sm font-medium text-blue-800 mb-2 flex items-center">
+                                    💡 使い方ガイド
+                                </h3>
                                 <ul className="text-sm text-blue-700 space-y-1">
-                                    <li><strong>エクスポート</strong>：現在のデータをJSONファイルとして保存</li>
-                                    <li><strong>インポート</strong>：他のデバイスからエクスポートしたファイルを読み込み</li>
-                                    <li><strong>友人と共有</strong>：このサイトのURLを教えるだけで、みんな個別にデータ管理可能</li>
+                                    <li><strong>📤 エクスポート</strong>：現在のデータをJSONファイルとして保存できます</li>
+                                    <li><strong>📥 インポート</strong>：他のデバイスからエクスポートしたファイルを読み込めます</li>
+                                    <li><strong>🗑️ クリア</strong>：全てのデータを削除します（取り消し不可）</li>
+                                    <li><strong>👥 共有</strong>：このサイトのURLを教えるだけで、友人も個別にデータ管理可能</li>
+                                    <li><strong>💬 新機能</strong>：各URLにコメントを追加できるようになりました！</li>
                                 </ul>
                             </div>
                         </div>
@@ -323,7 +350,7 @@
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder="URLやジャンルで検索..."
+                                placeholder="URL、ジャンル、コメントで検索..."
                                 className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                             />
                             {searchQuery && (
@@ -418,28 +445,31 @@
                             onSetRating={setRating}
                             onSetPriority={setPriority}
                             onMove={moveUrlItem}
+                            onUpdateComment={updateComment}
                         />
                     </main>
                 </div>
             );
         };
 
-        // UrlInput コンポーネント
+        // UrlInput コンポーネント（コメント欄追加）
         const UrlInput = ({ onAdd }) => {
             const [url, setUrl] = useState('');
             const [genre, setGenre] = useState('未分類');
             const [customGenre, setCustomGenre] = useState('');
             const [isCustomGenre, setIsCustomGenre] = useState(false);
+            const [comment, setComment] = useState(''); // コメント欄追加
 
             const handleSubmit = (e) => {
                 e.preventDefault();
                 if (url.trim()) {
                     const finalGenre = isCustomGenre && customGenre.trim() ? customGenre.trim() : genre;
-                    onAdd(url.trim(), finalGenre);
+                    onAdd(url.trim(), finalGenre, comment.trim());
                     setUrl('');
                     setGenre('未分類');
                     setCustomGenre('');
                     setIsCustomGenre(false);
+                    setComment(''); // コメントリセット
                 }
             };
 
@@ -495,6 +525,21 @@
                                 autoFocus
                             />
                         )}
+                    </div>
+                    {/* 🎉 新機能: コメント欄 */}
+                    <div>
+                        <label htmlFor="comment-input" className="block text-sm font-medium text-slate-700 mb-2">
+                            コメント・メモ
+                            <span className="ml-2 px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">新機能</span>
+                        </label>
+                        <textarea
+                            id="comment-input"
+                            value={comment}
+                            onChange={(e) => setComment(e.target.value)}
+                            placeholder="このサイトについてのメモやコメントを入力してください..."
+                            rows="3"
+                            className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 resize-vertical"
+                        />
                     </div>
                     <button
                         type="submit"
@@ -573,7 +618,7 @@
         };
 
         // UrlList コンポーネント
-        const UrlList = ({ items, allItems, onDelete, onToggleRead, onSetRating, onSetPriority, onMove }) => {
+        const UrlList = ({ items, allItems, onDelete, onToggleRead, onSetRating, onSetPriority, onMove, onUpdateComment }) => {
             if (items.length === 0) {
                 return (
                     <div className="bg-white p-8 rounded-xl shadow-lg text-center">
@@ -609,6 +654,7 @@
                                 onSetRating={onSetRating}
                                 onSetPriority={onSetPriority}
                                 onMove={onMove}
+                                onUpdateComment={onUpdateComment}
                                 canMoveUp={originalIndex > 0}
                                 canMoveDown={originalIndex < allItems.length - 1}
                             />
@@ -618,8 +664,11 @@
             );
         };
 
-        // UrlItem コンポーネント
-        const UrlItem = ({ item, index, onDelete, onToggleRead, onSetRating, onSetPriority, onMove, canMoveUp, canMoveDown }) => {
+        // UrlItem コンポーネント（コメント欄対応）
+        const UrlItem = ({ item, index, onDelete, onToggleRead, onSetRating, onSetPriority, onMove, onUpdateComment, canMoveUp, canMoveDown }) => {
+            const [isEditingComment, setIsEditingComment] = useState(false);
+            const [commentText, setCommentText] = useState(item.comment || '');
+
             const formatDate = (dateString) => {
                 try {
                     const date = new Date(dateString);
@@ -633,6 +682,16 @@
                 } catch {
                     return '日時不明';
                 }
+            };
+
+            const handleCommentSave = () => {
+                onUpdateComment(item.id, commentText);
+                setIsEditingComment(false);
+            };
+
+            const handleCommentCancel = () => {
+                setCommentText(item.comment || '');
+                setIsEditingComment(false);
             };
 
             return (
@@ -662,6 +721,56 @@
                             >
                                 {item.url}
                             </a>
+                            
+                            {/* 🎉 新機能: コメント表示・編集 */}
+                            <div className="mt-3 p-3 bg-slate-50 rounded-lg border">
+                                <div className="flex items-center justify-between mb-2">
+                                    <span className="text-sm font-medium text-slate-700 flex items-center">
+                                        💬 コメント
+                                        <span className="ml-2 px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">新機能</span>
+                                    </span>
+                                    <button
+                                        onClick={() => setIsEditingComment(!isEditingComment)}
+                                        className="text-xs text-sky-600 hover:text-sky-800"
+                                    >
+                                        {isEditingComment ? 'キャンセル' : '編集'}
+                                    </button>
+                                </div>
+                                {isEditingComment ? (
+                                    <div className="space-y-2">
+                                        <textarea
+                                            value={commentText}
+                                            onChange={(e) => setCommentText(e.target.value)}
+                                            placeholder="コメントを入力してください..."
+                                            rows="3"
+                                            className="w-full px-3 py-2 border border-slate-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 resize-vertical"
+                                        />
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={handleCommentSave}
+                                                className="px-3 py-1 bg-sky-600 text-white rounded text-xs hover:bg-sky-700"
+                                            >
+                                                保存
+                                            </button>
+                                            <button
+                                                onClick={handleCommentCancel}
+                                                className="px-3 py-1 bg-slate-300 text-slate-700 rounded text-xs hover:bg-slate-400"
+                                            >
+                                                キャンセル
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="text-sm text-slate-600">
+                                        {item.comment ? (
+                                            <div className="whitespace-pre-wrap break-words">{item.comment}</div>
+                                        ) : (
+                                            <span className="text-slate-400 italic">コメントがありません</span>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
                             <div className="flex items-center mt-2">
                                 <span className="text-sm text-slate-500 mr-2">優先度:</span>
                                 <StarRating 
