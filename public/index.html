@@ -4,1140 +4,790 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>読みたいものリスト 🔥</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
-        }
-
-        h1 {
-            background: linear-gradient(135deg, #ff6b6b, #ffa500);
-            color: white;
-            text-align: center;
-            padding: 30px 20px;
-            margin: 0;
-            font-size: 2.5em;
-            font-weight: bold;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #666;
-            font-style: italic;
-            margin: 10px 0;
-            padding: 0 20px;
-        }
-
-        .description {
-            text-align: center;
-            color: #888;
-            margin-bottom: 20px;
-            padding: 0 20px;
-        }
-
-        .stats-bar {
-            display: flex;
-            justify-content: space-around;
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-bottom: 1px solid #e9ecef;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .stat-item {
-            text-align: center;
-            flex: 1;
-            min-width: 100px;
-        }
-
-        .stat-number {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #667eea;
-        }
-
-        .stat-label {
-            font-size: 0.9em;
-            color: #666;
-        }
-
-        .user-info {
-            text-align: center;
-            padding: 10px 20px;
-            background-color: #e8f4fd;
-            border-bottom: 1px solid #cce7ff;
-            font-size: 0.9em;
-            color: #0066cc;
-        }
-
-        .export-import-controls {
-            margin: 20px;
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .export-btn, .import-btn, .clear-btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .export-btn {
-            background-color: #28a745;
-            color: white;
-        }
-
-        .import-btn {
-            background-color: #007bff;
-            color: white;
-        }
-
-        .clear-btn {
-            background-color: #dc3545;
-            color: white;
-        }
-
-        .export-btn:hover, .import-btn:hover, .clear-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-        }
-
-        .form-container {
-            padding: 30px;
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .form-container h2 {
-            margin-bottom: 20px;
-            color: #333;
-            font-size: 1.8em;
-            text-align: center;
-        }
-
-        .form-row {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-
-        .form-group {
-            flex: 1;
-            min-width: 200px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            color: #555;
-        }
-
-        input[type="url"], input[type="text"], textarea, select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s ease;
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        input:focus, textarea:focus, select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 15px;
-        }
-
-        .checkbox-group input[type="checkbox"] {
-            width: auto;
-            margin: 0;
-        }
-
-        button {
-            padding: 15px 25px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-        }
-
-        .btn-secondary {
-            background: linear-gradient(135deg, #28a745, #20c997);
-            font-size: 14px;
-            padding: 10px 16px;
-        }
-
-        .controls-bar {
-            padding: 20px 30px;
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .controls-bar input, .controls-bar select {
-            flex: 1;
-            min-width: 200px;
-        }
-
-        .sort-controls {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .website-list {
-            padding: 30px;
-            min-height: 300px;
-        }
-
-        .list-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .view-toggle {
-            display: flex;
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            overflow: hidden;
-        }
-
-        .view-btn {
-            padding: 8px 15px;
-            background: white;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .view-btn.active {
-            background: #667eea;
-            color: white;
-        }
-
-        .empty-message {
-            text-align: center;
-            color: #888;
-            font-style: italic;
-            margin-top: 50px;
-            font-size: 1.2em;
-            line-height: 1.8;
-        }
-
-        .website-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            padding: 20px;
-            margin-bottom: 15px;
-            background: white;
-            border: 1px solid #e9ecef;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
-        }
-
-        .website-item:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .website-item.priority-high {
-            border-left: 5px solid #dc3545;
-        }
-
-        .website-item.priority-medium {
-            border-left: 5px solid #ffc107;
-        }
-
-        .website-item.priority-low {
-            border-left: 5px solid #28a745;
-        }
-
-        .website-info {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .website-title {
-            font-size: 1.2em;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 5px;
-        }
-
-        .website-url {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 500;
-            word-break: break-all;
-            font-size: 0.95em;
-        }
-
-        .website-url:hover {
-            text-decoration: underline;
-        }
-
-        .website-description {
-            color: #666;
-            font-size: 0.9em;
-            line-height: 1.4;
-            margin: 5px 0;
-        }
-
-        .website-meta {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-top: 10px;
-        }
-
-        .website-genre {
-            display: inline-block;
-            background: linear-gradient(135deg, #ff6b6b, #ffa500);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8em;
-            font-weight: 600;
-        }
-
-        .website-priority {
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 0.75em;
-            font-weight: 600;
-        }
-
-        .priority-high { background: #ffe6e6; color: #dc3545; }
-        .priority-medium { background: #fff8e1; color: #f57c00; }
-        .priority-low { background: #e8f5e8; color: #2e7d2e; }
-
-        .website-date {
-            color: #999;
-            font-size: 0.8em;
-        }
-
-        .website-favorite {
-            color: #ffc107;
-            font-size: 1.2em;
-            cursor: pointer;
-        }
-
-        .website-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-left: 15px;
-        }
-
-        .action-btn {
-            padding: 6px 12px;
-            font-size: 12px;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .edit-btn {
-            background: #17a2b8;
-            color: white;
-        }
-
-        .delete-btn {
-            background: #dc3545;
-            color: white;
-        }
-
-        .archive-btn {
-            background: #6c757d;
-            color: white;
-        }
-
-        .card-view .website-item {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .card-view .website-actions {
-            flex-direction: row;
-            justify-content: flex-end;
-            margin-left: 0;
-            margin-top: 15px;
-        }
-
-        .bulk-actions {
-            background: #e8f4fd;
-            padding: 15px 30px;
-            border-bottom: 1px solid #cce7ff;
-            display: none;
-            gap: 15px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .bulk-actions.active {
-            display: flex;
-        }
-
-        .select-all-checkbox {
-            margin-right: 10px;
-        }
-
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            margin-top: 30px;
-            flex-wrap: wrap;
-        }
-
-        .page-btn {
-            padding: 8px 12px;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .page-btn.active {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-        }
-
-        @media (max-width: 768px) {
-            body { padding: 10px; }
-            h1 { font-size: 2em; padding: 20px; }
-            .form-container, .website-list, .controls-bar { padding: 20px; }
-            .form-row { flex-direction: column; }
-            .controls-bar { flex-direction: column; align-items: stretch; }
-            .website-item { flex-direction: column; align-items: stretch; gap: 15px; }
-            .website-actions { flex-direction: row; justify-content: flex-end; margin-left: 0; }
-            .stats-bar { flex-direction: column; gap: 15px; }
-            .list-header { flex-direction: column; align-items: stretch; }
-        }
-    </style>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>読みたいものリスト 🔥</h1>
-        <p class="subtitle">My favorite web site list</p>
-        <p class="description">気になるWebサイトをリストアップして、効率的に管理しましょう。</p>
-        
-        <!-- 統計情報 -->
-        <div class="stats-bar" id="statsBar">
-            <div class="stat-item">
-                <div class="stat-number" id="totalCount">0</div>
-                <div class="stat-label">総数</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="todayCount">0</div>
-                <div class="stat-label">今日追加</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="favoriteCount">0</div>
-                <div class="stat-label">お気に入り</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="genreCount">0</div>
-                <div class="stat-label">ジャンル数</div>
-            </div>
-        </div>
+    <div id="root"></div>
 
-        <!-- ユーザー情報 -->
-        <div class="user-info">
-            <span id="userIdDisplay"></span>
-        </div>
+    <script type="text/babel">
+        const { useState, useEffect, useCallback, useMemo } = React;
 
-        <!-- エクスポート・インポート・管理機能 -->
-        <div class="export-import-controls">
-            <button id="exportBtn" class="export-btn">📤 データをエクスポート</button>
-            <button id="importBtn" class="import-btn">📥 データをインポート</button>
-            <button id="clearAllBtn" class="clear-btn">🗑️ 全データクリア</button>
-            <input type="file" id="importFile" accept=".json" style="display: none;">
-        </div>
+        const App = () => {
+            const [urlItems, setUrlItems] = useState([]);
+            const [filterGenre, setFilterGenre] = useState('すべて');
+            const [readStatusFilter, setReadStatusFilter] = useState('すべて');
+            const [sortBy, setSortBy] = useState('created');
+            const [sortDirection, setSortDirection] = useState('desc');
+            const [searchQuery, setSearchQuery] = useState('');
 
-        <!-- フォーム -->
-        <div class="form-container">
-            <h2>新しいWebサイトを追加</h2>
-            <form id="websiteForm">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="urlInput">URL *</label>
-                        <input type="url" id="urlInput" placeholder="https://example.com" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="titleInput">タイトル</label>
-                        <input type="text" id="titleInput" placeholder="サイトタイトル（自動取得されます）">
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="genreSelect">ジャンル</label>
-                        <select id="genreSelect">
-                            <option value="未分類">未分類</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="prioritySelect">優先度</label>
-                        <select id="prioritySelect">
-                            <option value="medium">普通</option>
-                            <option value="high">高</option>
-                            <option value="low">低</option>
-                        </select>
-                    </div>
-                </div>
+            // ユーザーID生成・取得
+            const getUserId = useCallback(() => {
+                let userId = localStorage.getItem('userId');
+                if (!userId) {
+                    userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    localStorage.setItem('userId', userId);
+                }
+                return userId;
+            }, []);
 
-                <div class="form-group">
-                    <label for="descriptionInput">説明・メモ</label>
-                    <textarea id="descriptionInput" placeholder="このサイトについて簡単な説明やメモを書いてください"></textarea>
-                </div>
-
-                <div class="checkbox-group">
-                    <input type="checkbox" id="favoriteCheckbox">
-                    <label for="favoriteCheckbox">お気に入りに追加</label>
-                </div>
-
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <button type="submit">追加</button>
-                    <button type="button" id="addGenreBtn" class="btn-secondary">+ 新しいジャンル</button>
-                    <button type="button" id="resetFormBtn" class="btn-secondary">フォームリセット</button>
-                </div>
-            </form>
-        </div>
-
-        <!-- 一括操作 -->
-        <div class="bulk-actions" id="bulkActions">
-            <label class="select-all-checkbox">
-                <input type="checkbox" id="selectAllCheckbox"> 全選択
-            </label>
-            <button id="bulkDeleteBtn" class="action-btn delete-btn">選択したアイテムを削除</button>
-            <button id="bulkArchiveBtn" class="action-btn archive-btn">選択したアイテムをアーカイブ</button>
-            <button id="bulkFavoriteBtn" class="action-btn">お気に入りに追加</button>
-        </div>
-
-        <!-- 検索・フィルター・並び替え -->
-        <div class="controls-bar">
-            <input type="text" id="searchInput" placeholder="🔍 URL、タイトル、説明で検索...">
-            <select id="genreFilter">
-                <option value="all">すべてのジャンル</option>
-            </select>
-            <select id="priorityFilter">
-                <option value="all">すべての優先度</option>
-                <option value="high">高優先度</option>
-                <option value="medium">普通</option>
-                <option value="low">低優先度</option>
-            </select>
-            <select id="favoriteFilter">
-                <option value="all">すべて</option>
-                <option value="favorites">お気に入りのみ</option>
-                <option value="non-favorites">お気に入り以外</option>
-            </select>
-            <div class="sort-controls">
-                <select id="sortBy">
-                    <option value="date-desc">追加日時（新しい順）</option>
-                    <option value="date-asc">追加日時（古い順）</option>
-                    <option value="title-asc">タイトル（昇順）</option>
-                    <option value="title-desc">タイトル（降順）</option>
-                    <option value="priority">優先度順</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- リスト表示 -->
-        <div class="website-list">
-            <div class="list-header">
-                <h3 id="listTitle">すべてのWebサイト</h3>
-                <div class="view-toggle">
-                    <button class="view-btn active" data-view="list">📋 リスト</button>
-                    <button class="view-btn" data-view="card">🎴 カード</button>
-                </div>
-            </div>
-            
-            <div id="websiteList" class="list-view">
-                <div class="empty-message">
-                    リストは空です<br>
-                    上部のフォームからWebサイトを追加してください。<br>
-                    <small>URLを入力すると、自動的にサイトのタイトルを取得します。</small>
-                </div>
-            </div>
-
-            <!-- ページネーション -->
-            <div class="pagination" id="pagination" style="display: none;">
-                <button class="page-btn" id="prevPage">‹ 前へ</button>
-                <span id="pageNumbers"></span>
-                <button class="page-btn" id="nextPage">次へ ›</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        let websites = [];
-        let genres = ['未分類', 'ニュース', 'ブログ', '技術', 'エンタメ', 'ショッピング', '学習', 'その他'];
-        let currentPage = 1;
-        let itemsPerPage = 10;
-        let currentView = 'list';
-        let selectedItems = new Set();
-
-        // ユーザーID生成・取得
-        function getUserId() {
-            let userId = localStorage.getItem('userId');
-            if (!userId) {
-                userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                localStorage.setItem('userId', userId);
-            }
-            return userId;
-        }
-
-        // ユーザーID表示
-        function displayUserId() {
-            const userId = getUserId();
-            const displayElement = document.getElementById('userIdDisplay');
-            displayElement.textContent = `👤 ユーザーID: ${userId.substr(-8)} | 🕒 最終更新: ${new Date().toLocaleString('ja-JP')}`;
-        }
-
-        // データ保存
-        function saveWebsites() {
-            const userId = getUserId();
-            const userData = {
-                userId: userId,
-                websites: websites,
-                genres: genres,
-                lastModified: new Date().toISOString(),
-                appVersion: '2.0'
-            };
-            
-            localStorage.setItem('userData', JSON.stringify(userData));
-            localStorage.setItem('websites', JSON.stringify(websites));
-            localStorage.setItem('genres', JSON.stringify(genres));
-            displayUserId();
-        }
-
-        // データ読み込み
-        function loadWebsites() {
-            const userData = localStorage.getItem('userData');
-            if (userData) {
-                const data = JSON.parse(userData);
-                genres = data.genres || genres;
-                return data.websites || [];
-            }
-            
-            const oldWebsites = localStorage.getItem('websites');
-            const oldGenres = localStorage.getItem('genres');
-            
-            if (oldWebsites) websites = JSON.parse(oldWebsites);
-            if (oldGenres) genres = JSON.parse(oldGenres);
-            
-            return websites || [];
-        }
-
-        // サイトタイトル自動取得
-        async function fetchSiteTitle(url) {
-            try {
-                const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
-                const data = await response.json();
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(data.contents, 'text/html');
-                const title = doc.querySelector('title');
-                return title ? title.textContent.trim() : '';
-            } catch (error) {
-                console.log('タイトル取得エラー:', error);
-                return '';
-            }
-        }
-
-        // 統計情報更新
-        function updateStats() {
-            const today = new Date().toDateString();
-            const todayCount = websites.filter(site => 
-                new Date(site.addedAt).toDateString() === today
-            ).length;
-            const favoriteCount = websites.filter(site => site.favorite).length;
-            const genreCount = [...new Set(websites.map(site => site.genre))].length;
-
-            document.getElementById('totalCount').textContent = websites.length;
-            document.getElementById('todayCount').textContent = todayCount;
-            document.getElementById('favoriteCount').textContent = favoriteCount;
-            document.getElementById('genreCount').textContent = genreCount;
-        }
-
-        // エクスポート機能
-        function exportData() {
-            const userId = getUserId();
-            const userData = {
-                userId: userId,
-                websites: websites,
-                genres: genres,
-                exportDate: new Date().toISOString(),
-                appVersion: '2.0',
-                totalItems: websites.length
-            };
-            
-            const dataStr = JSON.stringify(userData, null, 2);
-            const dataBlob = new Blob([dataStr], {type: 'application/json'});
-            
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(dataBlob);
-            link.download = `website-list-${userId.substr(-8)}-${new Date().toISOString().substr(0,10)}.json`;
-            link.click();
-            
-            alert(`${websites.length}件のWebサイトをエクスポートしました！`);
-        }
-
-        // インポート機能
-        function importData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
+            // LocalStorageからデータを読み込み
+            useEffect(() => {
                 try {
-                    const importedData = JSON.parse(e.target.result);
-                    
-                    if (importedData.websites && Array.isArray(importedData.websites)) {
-                        const confirmMessage = `${importedData.websites.length}件のWebサイトをインポートしますか？\n現在のデータは上書きされます。`;
-                        
-                        if (confirm(confirmMessage)) {
-                            websites = importedData.websites;
-                            genres = importedData.genres || genres;
-                            saveWebsites();
-                            displayWebsites();
-                            updateFilters();
-                            updateGenreSelect();
-                            updateStats();
-                            alert('データのインポートが完了しました！');
+                    // 新しいフォーマットでの読み込み
+                    const userData = localStorage.getItem('userData');
+                    if (userData) {
+                        const data = JSON.parse(userData);
+                        if (data.urlItems && Array.isArray(data.urlItems)) {
+                            setUrlItems(data.urlItems.filter(item => item.url));
+                            return;
                         }
-                    } else {
-                        alert('無効なファイル形式です。');
+                    }
+
+                    // 既存のフォーマットでの読み込み（互換性のため）
+                    const storedItems = localStorage.getItem('urlItems');
+                    if (storedItems) {
+                        const parsedItems = JSON.parse(storedItems);
+                        const migratedItems = parsedItems.map(item => ({
+                            id: item.id || new Date().toISOString(),
+                            url: item.url || '',
+                            isRead: item.isRead || false,
+                            rating: item.rating || 0,
+                            priority: item.priority || 0,
+                            genre: item.genre || '未分類',
+                            createdAt: item.createdAt || new Date().toISOString(),
+                        }));
+                        setUrlItems(migratedItems.filter(item => item.url));
                     }
                 } catch (error) {
-                    alert('ファイルの読み込みに失敗しました。');
-                    console.error('Import error:', error);
+                    console.error("Failed to load items from localStorage", error);
                 }
-            };
-            reader.readAsText(file);
-            event.target.value = '';
-        }
+            }, []);
 
-        // 全データクリア
-        function clearAllData() {
-            if (confirm('本当に全てのデータを削除しますか？\nこの操作は取り消せません。')) {
-                if (confirm('最終確認：全てのWebサイト情報が削除されます。よろしいですか？')) {
-                    websites = [];
-                    saveWebsites();
-                    displayWebsites();
-                    updateFilters();
-                    updateStats();
-                    alert('全てのデータが削除されました。');
+            // LocalStorageにデータを保存
+            useEffect(() => {
+                try {
+                    const userId = getUserId();
+                    const userData = {
+                        userId: userId,
+                        urlItems: urlItems,
+                        lastModified: new Date().toISOString(),
+                        appVersion: '2.0'
+                    };
+                    
+                    localStorage.setItem('userData', JSON.stringify(userData));
+                    localStorage.setItem('urlItems', JSON.stringify(urlItems)); // 互換性のため
+                } catch (error) {
+                    console.error("Failed to save items to localStorage", error);
                 }
-            }
-        }
+            }, [urlItems, getUserId]);
 
-        // Webサイト追加
-        async function addWebsite() {
-            const urlInput = document.getElementById('urlInput');
-            const titleInput = document.getElementById('titleInput');
-            const genreSelect = document.getElementById('genreSelect');
-            const prioritySelect = document.getElementById('prioritySelect');
-            const descriptionInput = document.getElementById('descriptionInput');
-            const favoriteCheckbox = document.getElementById('favoriteCheckbox');
-            
-            const url = urlInput.value.trim();
-            const genre = genreSelect.value;
-            const priority = prioritySelect.value;
-            const description = descriptionInput.value.trim();
-            const favorite = favoriteCheckbox.checked;
-            
-            if (url) {
-                // 重複チェック
-                if (websites.some(site => site.url === url)) {
-                    alert('このURLは既に追加されています。');
-                    return;
-                }
-                
-                // タイトル取得
-                let title = titleInput.value.trim();
-                if (!title) {
-                    const submitBtn = document.querySelector('button[type="submit"]');
-                    submitBtn.textContent = 'タイトル取得中...';
-                    submitBtn.disabled = true;
-                    
-                    title = await fetchSiteTitle(url);
-                    if (!title) {
-                        const urlObj = new URL(url);
-                        title = urlObj.hostname;
-                    }
-                    
-                    submitBtn.textContent = '追加';
-                    submitBtn.disabled = false;
-                }
-                
-                const website = {
-                    id: Date.now() + Math.random(),
-                    url: url,
-                    title: title,
-                    genre: genre,
-                    priority: priority,
-                    description: description,
-                    favorite: favorite,
-                    addedAt: new Date().toISOString(),
-                    viewCount: 0,
-                    archived: false
+            // エクスポート機能
+            const exportData = useCallback(() => {
+                const userId = getUserId();
+                const exportData = {
+                    userId: userId,
+                    urlItems: urlItems,
+                    exportDate: new Date().toISOString(),
+                    appVersion: '2.0',
+                    totalItems: urlItems.length
                 };
                 
-                websites.push(website);
-                saveWebsites();
-                displayWebsites();
-                updateFilters();
-                updateStats();
-                resetForm();
+                const dataStr = JSON.stringify(exportData, null, 2);
+                const dataBlob = new Blob([dataStr], {type: 'application/json'});
                 
-                // 成功メッセージ
-                alert(`「${title}」を追加しました！`);
-            }
-        }
-
-        // フォームリセット
-        function resetForm() {
-            document.getElementById('websiteForm').reset();
-            document.getElementById('genreSelect').value = '未分類';
-            document.getElementById('prioritySelect').value = 'medium';
-        }
-
-        // Webサイト削除
-        function deleteWebsite(id) {
-            const website = websites.find(site => site.id === id);
-            if (confirm(`「${website.title || website.url}」を削除しますか？`)) {
-                websites = websites.filter(site => site.id !== id);
-                saveWebsites();
-                displayWebsites();
-                updateFilters();
-                updateStats();
-            }
-        }
-
-        // お気に入り切り替え
-        function toggleFavorite(id) {
-            const website = websites.find(site => site.id === id);
-            if (website) {
-                website.favorite = !website.favorite;
-                saveWebsites();
-                displayWebsites();
-                updateStats();
-            }
-        }
-
-        // アーカイブ切り替え
-        function toggleArchive(id) {
-            const website = websites.find(site => site.id === id);
-            if (website) {
-                website.archived = !website.archived;
-                saveWebsites();
-                displayWebsites();
-                updateFilters();
-            }
-        }
-
-        // Webサイト表示
-        function displayWebsites() {
-            const websiteList = document.getElementById('websiteListContainer') || document.getElementById('websiteList');
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const selectedGenre = document.getElementById('genreFilter').value;
-            const selectedPriority = document.getElementById('priorityFilter').value;
-            const selectedFavorite = document.getElementById('favoriteFilter').value;
-            const sortBy = document.getElementById('sortBy').value;
-            
-            let filteredWebsites = websites.filter(website => {
-                if (website.archived) return false;
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(dataBlob);
+                link.download = `website-list-${userId.substr(-8)}-${new Date().toISOString().substr(0,10)}.json`;
+                link.click();
                 
-                const matchesSearch = 
-                    website.url.toLowerCase().includes(searchTerm) ||
-                    (website.title && website.title.toLowerCase().includes(searchTerm)) ||
-                    (website.description && website.description.toLowerCase().includes(searchTerm));
+                alert(`${urlItems.length}件のWebサイトをエクスポートしました！`);
+            }, [urlItems, getUserId]);
+
+            // インポート機能
+            const importData = useCallback((event) => {
+                const file = event.target.files[0];
+                if (!file) return;
                 
-                const matchesGenre = selectedGenre === 'all' || website.genre === selectedGenre;
-                const matchesPriority = selectedPriority === 'all' || website.priority === selectedPriority;
-                const matchesFavorite = 
-                    selectedFavorite === 'all' || 
-                    (selectedFavorite === 'favorites' && website.favorite) ||
-                    (selectedFavorite === 'non-favorites' && !website.favorite);
-                
-                return matchesSearch && matchesGenre && matchesPriority && matchesFavorite;
-            });
-
-            // ソート
-            filteredWebsites.sort((a, b) => {
-                switch (sortBy) {
-                    case 'date-asc': return new Date(a.addedAt) - new Date(b.addedAt);
-                    case 'date-desc': return new Date(b.addedAt) - new Date(a.addedAt);
-                    case 'title-asc': return (a.title || a.url).localeCompare(b.title || b.url);
-                    case 'title-desc': return (b.title || b.url).localeCompare(a.title || a.url);
-                    case 'priority': 
-                        const priorityOrder = { high: 3, medium: 2, low: 1 };
-                        return priorityOrder[b.priority] - priorityOrder[a.priority];
-                    default: return 0;
-                }
-            });
-
-            // リストタイトル更新
-            const listTitle = document.getElementById('listTitle');
-            listTitle.textContent = `${filteredWebsites.length}件のWebサイト`;
-
-            if (filteredWebsites.length === 0) {
-                websiteList.innerHTML = `
-                    <div class="empty-message">
-                        ${searchTerm || selectedGenre !== 'all' || selectedPriority !== 'all' || selectedFavorite !== 'all' 
-                            ? 'フィルター条件に一致するWebサイトが見つかりません。<br>検索条件を変更してお試しください。'
-                            : 'リストは空です<br>上部のフォームからWebサイトを追加してください。<br><small>URLを入力すると、自動的にサイトのタイトルを取得します。</small>'
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const importedData = JSON.parse(e.target.result);
+                        
+                        if (importedData.urlItems && Array.isArray(importedData.urlItems)) {
+                            const confirmMessage = `${importedData.urlItems.length}件のWebサイトをインポートしますか？\n現在のデータは上書きされます。`;
+                            
+                            if (confirm(confirmMessage)) {
+                                setUrlItems(importedData.urlItems);
+                                alert('データのインポートが完了しました！');
+                            }
+                        } else {
+                            alert('無効なファイル形式です。');
                         }
-                    </div>
-                `;
-                return;
-            }
+                    } catch (error) {
+                        alert('ファイルの読み込みに失敗しました。');
+                        console.error('Import error:', error);
+                    }
+                };
+                reader.readAsText(file);
+                event.target.value = '';
+            }, []);
 
-            // ページネーション
-            const totalPages = Math.ceil(filteredWebsites.length / itemsPerPage);
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = startIndex + itemsPerPage;
-            const paginatedWebsites = filteredWebsites.slice(startIndex, endIndex);
-
-            const websiteHTML = paginatedWebsites.map(website => {
-                const date = new Date(website.addedAt).toLocaleDateString('ja-JP');
-                const priorityClass = `priority-${website.priority}`;
-                const priorityText = {high: '高', medium: '普通', low: '低'}[website.priority];
-                
-                return `
-                    <div class="website-item ${priorityClass}">
-                        <div class="website-info">
-                            <div class="website-title">
-                                ${website.title || 'タイトル未取得'}
-                                <span class="website-favorite ${website.favorite ? 'active' : ''}" onclick="toggleFavorite(${website.id})">
-                                    ${website.favorite ? '⭐' : '☆'}
-                                </span>
-                            </div>
-                            <a href="${website.url}" target="_blank" class="website-url">${website.url}</a>
-                            ${website.description ? `<div class="website-description">${website.description}</div>` : ''}
-                            <div class="website-meta">
-                                <span class="website-genre">${website.genre}</span>
-                                <span class="website-priority priority-${website.priority}">${priorityText}</span>
-                                <span class="website-date">${date}</span>
-                            </div>
-                        </div>
-                        <div class="website-actions">
-                            <button class="action-btn edit-btn" onclick="editWebsite(${website.id})">編集</button>
-                            <button class="action-btn archive-btn" onclick="toggleArchive(${website.id})">
-                                ${website.archived ? '復元' : 'アーカイブ'}
-                            </button>
-                            <button class="action-btn delete-btn" onclick="deleteWebsite(${website.id})">削除</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            
-            websiteList.innerHTML = websiteHTML;
-
-            // ページネーション表示
-            updatePagination(totalPages);
-        }
-
-        // ページネーション更新
-        function updatePagination(totalPages) {
-            const pagination = document.getElementById('pagination');
-            const prevBtn = document.getElementById('prevPage');
-            const nextBtn = document.getElementById('nextPage');
-            const pageNumbers = document.getElementById('pageNumbers');
-
-            if (totalPages <= 1) {
-                pagination.style.display = 'none';
-                return;
-            }
-
-            pagination.style.display = 'flex';
-            prevBtn.disabled = currentPage === 1;
-            nextBtn.disabled = currentPage === totalPages;
-
-            let paginationHTML = '';
-            for (let i = 1; i <= totalPages; i++) {
-                paginationHTML += `
-                    <button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">
-                        ${i}
-                    </button>
-                `;
-            }
-            pageNumbers.innerHTML = paginationHTML;
-        }
-
-        // ページ移動
-        function goToPage(page) {
-            currentPage = page;
-            displayWebsites();
-        }
-
-        // ジャンル追加
-        function addGenre() {
-            const newGenre = prompt('新しいジャンル名を入力してください:');
-            if (newGenre && newGenre.trim()) {
-                const trimmedGenre = newGenre.trim();
-                if (!genres.includes(trimmedGenre)) {
-                    genres.push(trimmedGenre);
-                    saveWebsites();
-                    updateGenreSelect();
-                    updateFilters();
-                    document.getElementById('genreSelect').value = trimmedGenre;
-                } else {
-                    alert('そのジャンルは既に存在します。');
+            // 全データクリア
+            const clearAllData = useCallback(() => {
+                if (confirm('本当に全てのデータを削除しますか？\nこの操作は取り消せません。')) {
+                    if (confirm('最終確認：全てのWebサイト情報が削除されます。よろしいですか？')) {
+                        setUrlItems([]);
+                        alert('全てのデータが削除されました。');
+                    }
                 }
-            }
-        }
+            }, []);
 
-        // ジャンル選択肢更新
-        function updateGenreSelect() {
-            const genreSelect = document.getElementById('genreSelect');
-            genreSelect.innerHTML = genres.map(genre => 
-                `<option value="${genre}">${genre}</option>`
-            ).join('');
-        }
+            const addUrlItem = useCallback((url, genre) => {
+                if (url && !urlItems.some(item => item.url === url)) {
+                    const newItem = {
+                        id: new Date().toISOString(),
+                        url,
+                        genre,
+                        isRead: false,
+                        rating: 0,
+                        priority: 0,
+                        createdAt: new Date().toISOString(),
+                    };
+                    setUrlItems(prevItems => [...prevItems, newItem]);
+                }
+            }, [urlItems]);
 
-        // フィルター更新
-        function updateFilters() {
-            const genreFilter = document.getElementById('genreFilter');
-            const usedGenres = [...new Set(websites.map(site => site.genre))];
-            
-            genreFilter.innerHTML = '<option value="all">すべてのジャンル</option>' + 
-                usedGenres.map(genre => 
-                    `<option value="${genre}">${genre}</option>`
-                ).join('');
-        }
+            const deleteUrlItem = useCallback((id) => {
+                setUrlItems(prevItems => prevItems.filter(item => item.id !== id));
+            }, []);
 
-        // 表示切り替え
-        function switchView(view) {
-            currentView = view;
-            const websiteList = document.getElementById('websiteList');
-            const viewBtns = document.querySelectorAll('.view-btn');
-            
-            viewBtns.forEach(btn => btn.classList.remove('active'));
-            document.querySelector(`[data-view="${view}"]`).classList.add('active');
-            
-            websiteList.className = `${view}-view`;
-            displayWebsites();
-        }
+            const toggleReadStatus = useCallback((id) => {
+                setUrlItems(prevItems =>
+                    prevItems.map(item =>
+                        item.id === id ? { ...item, isRead: !item.isRead } : item
+                    )
+                );
+            }, []);
 
-        // 初期化
-        document.addEventListener('DOMContentLoaded', function() {
-            displayUserId();
-            websites = loadWebsites();
-            updateGenreSelect();
-            displayWebsites();
-            updateFilters();
-            updateStats();
-            
-            // イベントリスナー
-            document.getElementById('websiteForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                addWebsite();
-            });
-            
-            document.getElementById('addGenreBtn').addEventListener('click', addGenre);
-            document.getElementById('resetFormBtn').addEventListener('click', resetForm);
-            document.getElementById('searchInput').addEventListener('input', () => {
-                currentPage = 1;
-                displayWebsites();
-            });
-            
-            ['genreFilter', 'priorityFilter', 'favoriteFilter', 'sortBy'].forEach(id => {
-                document.getElementById(id).addEventListener('change', () => {
-                    currentPage = 1;
-                    displayWebsites();
+            const setRating = useCallback((id, rating) => {
+                setUrlItems(prevItems =>
+                    prevItems.map(item =>
+                        item.id === id ? { ...item, rating } : item
+                    )
+                );
+            }, []);
+
+            const setPriority = useCallback((id, priority) => {
+                setUrlItems(prevItems =>
+                    prevItems.map(item =>
+                        item.id === id ? { ...item, priority } : item
+                    )
+                );
+            }, []);
+
+            const moveUrlItem = useCallback((index, direction) => {
+                setUrlItems(prevItems => {
+                    const newItems = [...prevItems];
+                    const itemToMove = newItems[index];
+                    const swapIndex = direction === 'up' ? index - 1 : index + 1;
+
+                    if (swapIndex < 0 || swapIndex >= newItems.length) {
+                        return newItems;
+                    }
+
+                    newItems[index] = newItems[swapIndex];
+                    newItems[swapIndex] = itemToMove;
+                    return newItems;
                 });
-            });
+            }, []);
+
+            const handleSort = useCallback((newSortBy) => {
+                if (sortBy === newSortBy) {
+                    setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+                } else {
+                    setSortBy(newSortBy);
+                    setSortDirection(newSortBy === 'created' ? 'desc' : 'asc');
+                }
+            }, [sortBy]);
+
+            const genres = ['すべて', ...Array.from(new Set(urlItems.map(item => item.genre)))];
             
-            document.getElementById('exportBtn').addEventListener('click', exportData);
-            document.getElementById('importBtn').addEventListener('click', () => {
-                document.getElementById('importFile').click();
-            });
-            document.getElementById('importFile').addEventListener('change', importData);
-            document.getElementById('clearAllBtn').addEventListener('click', clearAllData);
+            const filteredAndSortedItems = useMemo(() => {
+                let filtered = urlItems.filter(item => {
+                    const matchesGenre = filterGenre === 'すべて' || item.genre === filterGenre;
+                    const matchesSearch = searchQuery === '' || 
+                        item.url.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        item.genre.toLowerCase().includes(searchQuery.toLowerCase());
+                    const matchesReadStatus = readStatusFilter === 'すべて' ||
+                        (readStatusFilter === '未読' && !item.isRead) ||
+                        (readStatusFilter === '既読' && item.isRead);
+                    
+                    return matchesGenre && matchesSearch && matchesReadStatus;
+                });
+
+                filtered.sort((a, b) => {
+                    let comparison = 0;
+                    
+                    switch (sortBy) {
+                        case 'priority':
+                            comparison = b.priority - a.priority;
+                            break;
+                        case 'rating':
+                            comparison = b.rating - a.rating;
+                            break;
+                        case 'created':
+                            comparison = new Date(b.createdAt) - new Date(a.createdAt);
+                            break;
+                        case 'genre':
+                            comparison = a.genre.localeCompare(b.genre, 'ja');
+                            break;
+                        default:
+                            comparison = 0;
+                    }
+                    
+                    return sortDirection === 'asc' ? comparison : -comparison;
+                });
+
+                return filtered;
+            }, [urlItems, filterGenre, searchQuery, readStatusFilter, sortBy, sortDirection]);
+
+            return (
+                <div className="min-h-screen bg-slate-100 font-sans text-slate-800">
+                    <header className="bg-white shadow-md">
+                        <div className="max-w-4xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                            <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+                                読みたいものリスト 🔥
+                            </h1>
+                            <p className="mt-2 text-slate-600">気になるWebサイトをリストアップして、管理しましょう。</p>
+                            <div className="mt-2 text-sm text-slate-500">
+                                👤 ユーザーID: {getUserId().substr(-8)} | 🕒 最終更新: {new Date().toLocaleString('ja-JP')}
+                            </div>
+                        </div>
+                    </header>
+                    
+                    <main className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+                        {/* エクスポート・インポート・管理機能 */}
+                        <div className="bg-white p-6 rounded-xl shadow-lg mb-8">
+                            <h2 className="text-xl font-semibold mb-4 text-slate-700">データ管理</h2>
+                            <div className="flex flex-wrap gap-3">
+                                <button
+                                    onClick={exportData}
+                                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors"
+                                >
+                                    📤 データをエクスポート
+                                </button>
+                                <button
+                                    onClick={() => document.getElementById('importFile').click()}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                                >
+                                    📥 データをインポート
+                                </button>
+                                <button
+                                    onClick={clearAllData}
+                                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors"
+                                >
+                                    🗑️ 全データクリア
+                                </button>
+                                <input
+                                    type="file"
+                                    id="importFile"
+                                    accept=".json"
+                                    onChange={importData}
+                                    style={{ display: 'none' }}
+                                />
+                            </div>
+                            <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+                                <h3 className="text-sm font-medium text-blue-800 mb-2">💡 使い方</h3>
+                                <ul className="text-sm text-blue-700 space-y-1">
+                                    <li><strong>エクスポート</strong>：現在のデータをJSONファイルとして保存</li>
+                                    <li><strong>インポート</strong>：他のデバイスからエクスポートしたファイルを読み込み</li>
+                                    <li><strong>友人と共有</strong>：このサイトのURLを教えるだけで、みんな個別にデータ管理可能</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div className="bg-white p-6 rounded-xl shadow-lg mb-8">
+                            <h2 className="text-xl font-semibold mb-4 text-slate-700">新しいURLを追加</h2>
+                            <UrlInput onAdd={addUrlItem} />
+                        </div>
+
+                        <div className="bg-white p-6 rounded-xl shadow-lg mb-8">
+                            <div className="flex items-center gap-2 mb-2">
+                                <SearchIcon className="h-5 w-5 text-slate-400" />
+                                <h2 className="text-xl font-semibold text-slate-700">検索</h2>
+                            </div>
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder="URLやジャンルで検索..."
+                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                            />
+                            {searchQuery && (
+                                <div className="mt-2 flex items-center justify-between">
+                                    <p className="text-sm text-slate-600">
+                                        「{searchQuery}」の検索結果: {filteredAndSortedItems.length}件
+                                    </p>
+                                    <button
+                                        onClick={() => setSearchQuery('')}
+                                        className="text-sm text-sky-600 hover:text-sky-800"
+                                    >
+                                        クリア
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+
+                        {urlItems.length > 0 && (
+                            <div className="bg-white p-6 rounded-xl shadow-lg mb-8">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                                    <GenreFilter
+                                        genres={genres}
+                                        selectedGenre={filterGenre}
+                                        onFilterChange={setFilterGenre}
+                                    />
+                                    <ReadStatusFilter
+                                        selectedStatus={readStatusFilter}
+                                        onFilterChange={setReadStatusFilter}
+                                    />
+                                </div>
+                                
+                                <div className="border-t pt-4">
+                                    <div className="flex flex-wrap gap-2">
+                                        <span className="text-sm font-medium text-slate-700 mr-2 flex items-center">並び順:</span>
+                                        <SortButton 
+                                            sortBy="created" 
+                                            currentSort={sortBy} 
+                                            sortDirection={sortDirection}
+                                            onClick={handleSort}
+                                            label="追加日時"
+                                        />
+                                        <SortButton 
+                                            sortBy="priority" 
+                                            currentSort={sortBy} 
+                                            sortDirection={sortDirection}
+                                            onClick={handleSort}
+                                            label="優先度"
+                                        />
+                                        <SortButton 
+                                            sortBy="rating" 
+                                            currentSort={sortBy} 
+                                            sortDirection={sortDirection}
+                                            onClick={handleSort}
+                                            label="評価"
+                                        />
+                                        <SortButton 
+                                            sortBy="genre" 
+                                            currentSort={sortBy} 
+                                            sortDirection={sortDirection}
+                                            onClick={handleSort}
+                                            label="ジャンル"
+                                        />
+                                    </div>
+                                </div>
+                                
+                                <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+                                    <div className="text-center">
+                                        <div className="font-semibold text-slate-900">{urlItems.length}</div>
+                                        <div className="text-slate-600">総数</div>
+                                    </div>
+                                    <div className="text-center">
+                                        <div className="font-semibold text-blue-600">{urlItems.filter(item => !item.isRead).length}</div>
+                                        <div className="text-slate-600">未読</div>
+                                    </div>
+                                    <div className="text-center">
+                                        <div className="font-semibold text-green-600">{urlItems.filter(item => item.isRead).length}</div>
+                                        <div className="text-slate-600">既読</div>
+                                    </div>
+                                    <div className="text-center">
+                                        <div className="font-semibold text-yellow-600">{filteredAndSortedItems.length}</div>
+                                        <div className="text-slate-600">表示中</div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        <UrlList
+                            items={filteredAndSortedItems}
+                            allItems={urlItems}
+                            onDelete={deleteUrlItem}
+                            onToggleRead={toggleReadStatus}
+                            onSetRating={setRating}
+                            onSetPriority={setPriority}
+                            onMove={moveUrlItem}
+                        />
+                    </main>
+                </div>
+            );
+        };
+
+        // UrlInput コンポーネント
+        const UrlInput = ({ onAdd }) => {
+            const [url, setUrl] = useState('');
+            const [genre, setGenre] = useState('未分類');
+            const [customGenre, setCustomGenre] = useState('');
+            const [isCustomGenre, setIsCustomGenre] = useState(false);
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                if (url.trim()) {
+                    const finalGenre = isCustomGenre && customGenre.trim() ? customGenre.trim() : genre;
+                    onAdd(url.trim(), finalGenre);
+                    setUrl('');
+                    setGenre('未分類');
+                    setCustomGenre('');
+                    setIsCustomGenre(false);
+                }
+            };
+
+            const handleGenreChange = (e) => {
+                const value = e.target.value;
+                if (value === 'custom') {
+                    setIsCustomGenre(true);
+                    setGenre('未分類');
+                } else {
+                    setIsCustomGenre(false);
+                    setGenre(value);
+                    setCustomGenre('');
+                }
+            };
+
+            return (
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <label htmlFor="url-input" className="block text-sm font-medium text-slate-700 mb-2">
+                            URL
+                        </label>
+                        <input
+                            id="url-input"
+                            type="url"
+                            value={url}
+                            onChange={(e) => setUrl(e.target.value)}
+                            placeholder="https://example.com"
+                            className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="genre-select" className="block text-sm font-medium text-slate-700 mb-2">
+                            ジャンル
+                        </label>
+                        <select
+                            id="genre-select"
+                            value={isCustomGenre ? 'custom' : genre}
+                            onChange={handleGenreChange}
+                            className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                        >
+                            <option value="未分類">未分類</option>
+                            <option value="custom">+ 新しいジャンルを追加</option>
+                        </select>
+                        
+                        {isCustomGenre && (
+                            <input
+                                type="text"
+                                value={customGenre}
+                                onChange={(e) => setCustomGenre(e.target.value)}
+                                placeholder="新しいジャンル名を入力"
+                                className="w-full mt-2 px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                                autoFocus
+                            />
+                        )}
+                    </div>
+                    <button
+                        type="submit"
+                        className="w-full bg-sky-600 text-white py-2 px-4 rounded-md hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 transition-colors"
+                    >
+                        追加
+                    </button>
+                </form>
+            );
+        };
+
+        // GenreFilter コンポーネント
+        const GenreFilter = ({ genres, selectedGenre, onFilterChange }) => {
+            return (
+                <div>
+                    <label htmlFor="genre-filter" className="block text-sm font-medium text-slate-700 mb-2">
+                        ジャンルで絞り込み
+                    </label>
+                    <select
+                        id="genre-filter"
+                        value={selectedGenre}
+                        onChange={(e) => onFilterChange(e.target.value)}
+                        className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                    >
+                        {genres.map(genre => (
+                            <option key={genre} value={genre}>{genre}</option>
+                        ))}
+                    </select>
+                </div>
+            );
+        };
+
+        // ReadStatusFilter コンポーネント
+        const ReadStatusFilter = ({ selectedStatus, onFilterChange }) => {
+            return (
+                <div>
+                    <label htmlFor="read-status-filter" className="block text-sm font-medium text-slate-700 mb-2">
+                        未読・既読で絞り込み
+                    </label>
+                    <select
+                        id="read-status-filter"
+                        value={selectedStatus}
+                        onChange={(e) => onFilterChange(e.target.value)}
+                        className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                    >
+                        <option value="すべて">すべて</option>
+                        <option value="未読">未読のみ</option>
+                        <option value="既読">既読のみ</option>
+                    </select>
+                </div>
+            );
+        };
+
+        // SortButton コンポーネント
+        const SortButton = ({ sortBy, currentSort, sortDirection, onClick, label }) => {
+            const isActive = currentSort === sortBy;
+            const showArrow = isActive;
             
-            // 表示切り替え
-            document.querySelectorAll('.view-btn').forEach(btn => {
-                btn.addEventListener('click', () => switchView(btn.dataset.view));
-            });
-            
-            // ページネーション
-            document.getElementById('prevPage').addEventListener('click', () => {
-                if (currentPage > 1) goToPage(currentPage - 1);
-            });
-            document.getElementById('nextPage').addEventListener('click', () => {
-                const totalPages = Math.ceil(websites.length / itemsPerPage);
-                if (currentPage < totalPages) goToPage(currentPage + 1);
-            });
-        });
+            return (
+                <button
+                    onClick={() => onClick(sortBy)}
+                    className={`flex items-center gap-1 px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                        isActive 
+                            ? 'bg-sky-100 text-sky-700 border border-sky-300' 
+                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-300'
+                    }`}
+                >
+                    <span>{label}</span>
+                    {showArrow && (
+                        sortDirection === 'asc' ? 
+                            <ArrowUpIcon className="h-3 w-3" /> : 
+                            <ArrowDownIcon className="h-3 w-3" />
+                    )}
+                </button>
+            );
+        };
+
+        // UrlList コンポーネント
+        const UrlList = ({ items, allItems, onDelete, onToggleRead, onSetRating, onSetPriority, onMove }) => {
+            if (items.length === 0) {
+                return (
+                    <div className="bg-white p-8 rounded-xl shadow-lg text-center">
+                        <div className="text-slate-400 mb-4">
+                            <svg className="mx-auto h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        </div>
+                        <h3 className="text-lg font-medium text-slate-900 mb-2">
+                            {allItems.length === 0 ? 'リストは空です' : '該当するアイテムがありません'}
+                        </h3>
+                        <p className="text-slate-500">
+                            {allItems.length === 0 
+                                ? '上部のフォームからURLを追加してください。'
+                                : '検索条件やフィルターを変更してみてください。'
+                            }
+                        </p>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="space-y-4">
+                    {items.map((item) => {
+                        const originalIndex = allItems.findIndex(originalItem => originalItem.id === item.id);
+                        return (
+                            <UrlItem
+                                key={item.id}
+                                item={item}
+                                index={originalIndex}
+                                onDelete={onDelete}
+                                onToggleRead={onToggleRead}
+                                onSetRating={onSetRating}
+                                onSetPriority={onSetPriority}
+                                onMove={onMove}
+                                canMoveUp={originalIndex > 0}
+                                canMoveDown={originalIndex < allItems.length - 1}
+                            />
+                        );
+                    })}
+                </div>
+            );
+        };
+
+        // UrlItem コンポーネント
+        const UrlItem = ({ item, index, onDelete, onToggleRead, onSetRating, onSetPriority, onMove, canMoveUp, canMoveDown }) => {
+            const formatDate = (dateString) => {
+                try {
+                    const date = new Date(dateString);
+                    return date.toLocaleString('ja-JP', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                } catch {
+                    return '日時不明';
+                }
+            };
+
+            return (
+                <div className={`bg-white rounded-xl shadow-lg p-6 border-l-4 ${item.isRead ? 'border-green-500 bg-green-50' : 'border-sky-500'}`}>
+                    <div className="flex justify-between items-start">
+                        <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-2">
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">
+                                    {item.genre}
+                                </span>
+                                {item.isRead && (
+                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        既読
+                                    </span>
+                                )}
+                                {item.priority > 0 && (
+                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                        優先度 {item.priority}
+                                    </span>
+                                )}
+                            </div>
+                            <a
+                                href={item.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sky-600 hover:text-sky-800 font-medium text-sm break-all"
+                            >
+                                {item.url}
+                            </a>
+                            <div className="flex items-center mt-2">
+                                <span className="text-sm text-slate-500 mr-2">優先度:</span>
+                                <StarRating 
+                                    rating={item.priority} 
+                                    onRate={(priority) => onSetPriority(item.id, priority)}
+                                    color="red"
+                                />
+                            </div>
+                            <div className="flex items-center mt-2">
+                                <span className="text-sm text-slate-500 mr-2">評価:</span>
+                                <StarRating 
+                                    rating={item.rating} 
+                                    onRate={(rating) => onSetRating(item.id, rating)}
+                                    color="yellow"
+                                />
+                            </div>
+                            <div className="flex items-center mt-2 text-xs text-slate-400">
+                                <CalendarIcon className="h-3 w-3 mr-1" />
+                                <span>追加日時: {formatDate(item.createdAt)}</span>
+                            </div>
+                        </div>
+                        <div className="flex flex-col gap-2 ml-4">
+                            <div className="flex gap-1">
+                                {canMoveUp && (
+                                    <button
+                                        onClick={() => onMove(index, 'up')}
+                                        className="p-1 text-slate-400 hover:text-slate-600"
+                                        title="上に移動"
+                                    >
+                                        <ArrowUpIcon className="h-4 w-4" />
+                                    </button>
+                                )}
+                                {canMoveDown && (
+                                    <button
+                                        onClick={() => onMove(index, 'down')}
+                                        className="p-1 text-slate-400 hover:text-slate-600"
+                                        title="下に移動"
+                                    >
+                                        <ArrowDownIcon className="h-4 w-4" />
+                                    </button>
+                                )}
+                            </div>
+                            <div className="flex gap-1">
+                                <button
+                                    onClick={() => onToggleRead(item.id)}
+                                    className={`px-3 py-1 rounded text-xs font-medium ${
+                                        item.isRead
+                                            ? 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                                            : 'bg-green-600 text-white hover:bg-green-700'
+                                    }`}
+                                >
+                                    {item.isRead ? '未読' : '既読'}
+                                </button>
+                                <button
+                                    onClick={() => onDelete(item.id)}
+                                    className="px-3 py-1 bg-red-600 text-white rounded text-xs font-medium hover:bg-red-700"
+                                >
+                                    削除
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // StarRating コンポーネント
+        const StarRating = ({ rating, onRate, color = 'yellow' }) => {
+            const colorClasses = {
+                yellow: {
+                    active: 'text-yellow-400',
+                    inactive: 'text-slate-300',
+                    hover: 'hover:text-yellow-400'
+                },
+                red: {
+                    active: 'text-red-400',
+                    inactive: 'text-slate-300',
+                    hover: 'hover:text-red-400'
+                }
+            };
+
+            const colors = colorClasses[color];
+
+            return (
+                <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                            key={star}
+                            onClick={() => onRate(star)}
+                            className={`text-lg ${
+                                star <= rating ? colors.active : colors.inactive
+                            } ${colors.hover} transition-colors`}
+                        >
+                            ★
+                        </button>
+                    ))}
+                </div>
+            );
+        };
+
+        // アイコンコンポーネント
+        const SearchIcon = ({ className }) => (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+        );
+
+        const CalendarIcon = ({ className }) => (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+        );
+
+        const ArrowUpIcon = ({ className }) => (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+            </svg>
+        );
+
+        const ArrowDownIcon = ({ className }) => (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+        );
+
+        ReactDOM.render(<App />, document.getElementById('root'));
     </script>
 </body>
 </html>
