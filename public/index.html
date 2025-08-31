@@ -154,17 +154,16 @@
                 }
             }, []);
 
-            // 🔧 修正: URL追加時に優先度も含める
-            const addUrlItem = useCallback((url, genre, priority = 0, comment = '') => {
+            const addUrlItem = useCallback((url, genre, comment = '') => {
                 if (url && !urlItems.some(item => item.url === url)) {
                     const newItem = {
                         id: new Date().toISOString() + '_' + Math.random().toString(36).substr(2, 9), // より一意なID
                         url,
                         genre,
-                        priority, // 🔧 修正: 追加時に優先度設定
                         comment, // 🎉 新機能: コメント追加
                         isRead: false,
                         rating: 0,
+                        priority: 0,
                         createdAt: new Date().toISOString(),
                     };
                     setUrlItems(prevItems => [...prevItems, newItem]);
@@ -208,7 +207,7 @@
                 );
             }, []);
 
-            // 上下移動機能（デバッグ情報付き）
+            // 🔧 完全修正: 上下移動機能（デバッグ情報付き）
             const moveUrlItem = useCallback((id, direction) => {
                 console.log(`Moving item ${id} ${direction}`); // デバッグ用
                 
@@ -238,7 +237,7 @@
                 });
             }, []);
 
-            // ソート機能（手動移動時はソートを無効化）
+            // 🔧 修正: ソート機能（手動移動時はソートを無効化）
             const handleSort = useCallback((newSortBy) => {
                 if (sortBy === newSortBy) {
                     setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
@@ -248,15 +247,7 @@
                 }
             }, [sortBy]);
 
-            // 🔧 修正: 既存のジャンルリストを取得
-            const existingGenres = useMemo(() => {
-                const genres = [...new Set(urlItems.map(item => item.genre))];
-                // デフォルトの「未分類」を最初に、その他をアルファベット順で
-                const sortedGenres = genres.filter(g => g !== '未分類').sort();
-                return ['未分類', ...sortedGenres];
-            }, [urlItems]);
-
-            const genres = ['すべて', ...existingGenres];
+            const genres = ['すべて', ...Array.from(new Set(urlItems.map(item => item.genre)))];
             
             const filteredAndSortedItems = useMemo(() => {
                 let filtered = urlItems.filter(item => {
@@ -272,7 +263,7 @@
                     return matchesGenre && matchesSearch && matchesReadStatus;
                 });
 
-                // ソート処理（手動並び替えを優先）
+                // 🔧 修正: ソート処理（手動並び替えを優先）
                 if (sortBy !== 'created' || sortDirection !== 'desc') {
                     filtered.sort((a, b) => {
                         let comparison = 0;
@@ -320,8 +311,7 @@
                     <main className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
                         <div className="bg-white p-6 rounded-xl shadow-lg mb-8">
                             <h2 className="text-xl font-semibold mb-4 text-slate-700">新しいURLを追加</h2>
-                            {/* 🔧 修正: 既存ジャンルリストを渡す */}
-                            <UrlInput onAdd={addUrlItem} existingGenres={existingGenres} />
+                            <UrlInput onAdd={addUrlItem} urlItems={urlItems} />
                         </div>
 
                         <div className="bg-white p-6 rounded-xl shadow-lg mb-8">
@@ -398,7 +388,7 @@
                                             label="ジャンル"
                                         />
                                     </div>
-                                    {/* 手動移動の説明 */}
+                                    {/* 🔧 追加: 手動移動の説明 */}
                                     <p className="text-xs text-slate-500 bg-yellow-50 p-2 rounded">
                                         💡 ヒント: 上下移動ボタンで手動で順番を変更できます。ソート機能を使用すると手動の順番はリセットされます。
                                     </p>
@@ -487,25 +477,34 @@
             );
         };
 
-        // 🔧 修正: UrlInput コンポーネント（既存ジャンル表示 + 優先度追加）
-        const UrlInput = ({ onAdd, existingGenres }) => {
+        // 🎉 新機能対応: UrlInput コンポーネント（コメント欄追加、既存ジャンル表示対応）
+        const UrlInput = ({ onAdd, urlItems }) => {
             const [url, setUrl] = useState('');
             const [genre, setGenre] = useState('未分類');
             const [customGenre, setCustomGenre] = useState('');
             const [isCustomGenre, setIsCustomGenre] = useState(false);
-            const [priority, setPriority] = useState(0); // 🔧 修正: 優先度追加
             const [comment, setComment] = useState(''); // 🎉 新機能: コメント欄
+
+            // 🔧 修正: 既存ジャンル一覧を生成
+            const existingGenres = useMemo(() => {
+                const genres = new Set(['未分類']); // デフォルトのジャンル
+                urlItems.forEach(item => {
+                    if (item.genre && item.genre.trim()) {
+                        genres.add(item.genre);
+                    }
+                });
+                return Array.from(genres).sort();
+            }, [urlItems]);
 
             const handleSubmit = (e) => {
                 e.preventDefault();
                 if (url.trim()) {
                     const finalGenre = isCustomGenre && customGenre.trim() ? customGenre.trim() : genre;
-                    onAdd(url.trim(), finalGenre, priority, comment.trim()); // 🔧 修正: 優先度を含める
+                    onAdd(url.trim(), finalGenre, comment.trim());
                     setUrl('');
                     setGenre('未分類');
                     setCustomGenre('');
                     setIsCustomGenre(false);
-                    setPriority(0); // 優先度リセット
                     setComment(''); // コメントリセット
                 }
             };
@@ -520,26 +519,6 @@
                     setGenre(value);
                     setCustomGenre('');
                 }
-            };
-
-            // 🔧 修正: 優先度の星表示
-            const renderPriorityStars = () => {
-                return (
-                    <div className="flex gap-1">
-                        {[0, 1, 2, 3, 4, 5].map((star) => (
-                            <button
-                                key={star}
-                                type="button"
-                                onClick={() => setPriority(star)}
-                                className={`text-lg transition-colors ${
-                                    star <= priority ? 'text-red-400' : 'text-slate-300'
-                                } hover:text-red-400`}
-                            >
-                                {star === 0 ? '☆' : '★'}
-                            </button>
-                        ))}
-                    </div>
-                );
             };
 
             return (
@@ -558,10 +537,14 @@
                             required
                         />
                     </div>
-                    
                     <div>
-                        <label htmlFor="genre-select" className="block text-sm font-medium text-slate-700 mb-2">
+                        <label htmlFor="genre-select" className="block text-sm font-medium text-slate-700 mb-2 flex items-center">
                             ジャンル
+                            {existingGenres.length > 1 && (
+                                <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">
+                                    {existingGenres.length - 1}個の既存ジャンル
+                                </span>
+                            )}
                         </label>
                         <select
                             id="genre-select"
@@ -569,9 +552,11 @@
                             onChange={handleGenreChange}
                             className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                         >
-                            {/* 🔧 修正: 既存のジャンルを表示 */}
-                            {existingGenres.map(g => (
-                                <option key={g} value={g}>{g}</option>
+                            {/* 🔧 修正: 既存ジャンルを表示 */}
+                            {existingGenres.map((existingGenre) => (
+                                <option key={existingGenre} value={existingGenre}>
+                                    {existingGenre}
+                                </option>
                             ))}
                             <option value="custom">+ 新しいジャンルを追加</option>
                         </select>
@@ -587,22 +572,6 @@
                             />
                         )}
                     </div>
-
-                    {/* 🔧 修正: 優先度選択追加 */}
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2 flex items-center">
-                            優先度
-                            <span className="ml-2 px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full">追加</span>
-                        </label>
-                        <div className="flex items-center gap-3">
-                            {renderPriorityStars()}
-                            <span className="text-sm text-slate-600">
-                                ({priority === 0 ? '設定なし' : `優先度 ${priority}`})
-                            </span>
-                        </div>
-                        <p className="text-xs text-slate-500 mt-1">☆をクリックして優先度を設定してください（0=設定なし、1-5=優先度）</p>
-                    </div>
-
                     {/* 🎉 新機能: コメント欄 */}
                     <div>
                         <label htmlFor="comment-input" className="block text-sm font-medium text-slate-700 mb-2 flex items-center">
@@ -618,7 +587,6 @@
                             className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 resize-vertical"
                         />
                     </div>
-                    
                     <button
                         type="submit"
                         className="w-full bg-sky-600 text-white py-2 px-4 rounded-md hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 transition-colors"
@@ -737,12 +705,12 @@
             );
         };
 
-        // UrlItem コンポーネント（上下移動ボタン強化、コメント欄対応）
+        // 🔧 完全修正: UrlItem コンポーネント（上下移動ボタン強化、コメント欄対応）
         const UrlItem = ({ item, allItems, onDelete, onToggleRead, onSetRating, onSetPriority, onMove, onUpdateComment }) => {
             const [isEditingComment, setIsEditingComment] = useState(false);
             const [commentText, setCommentText] = useState(item.comment || '');
             
-            // 元の配列での位置を取得
+            // 🔧 修正: 元の配列での位置を取得
             const originalIndex = allItems.findIndex(originalItem => originalItem.id === item.id);
             const canMoveUp = originalIndex > 0;
             const canMoveDown = originalIndex < allItems.length - 1;
@@ -772,7 +740,7 @@
                 setIsEditingComment(false);
             };
 
-            // 上下移動ハンドラー（デバッグ機能付き）
+            // 🔧 修正: 上下移動ハンドラー（デバッグ機能付き）
             const handleMoveUp = () => {
                 console.log('Move up clicked for item:', item.id);
                 onMove(item.id, 'up');
@@ -882,7 +850,7 @@
                             </div>
                         </div>
                         <div className="flex flex-col gap-2 ml-4">
-                            {/* 上下移動ボタン（より目立つデザイン + デバッグ機能） */}
+                            {/* 🔧 完全修正: 上下移動ボタン（より目立つデザイン + デバッグ機能） */}
                             <div className="flex flex-col gap-1">
                                 {canMoveUp ? (
                                     <button
@@ -983,7 +951,7 @@
         );
 
         const ArrowUpIcon = ({ className }) => (
-            <svg className={ClassName} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
             </svg>
         );
