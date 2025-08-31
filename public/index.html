@@ -207,18 +207,21 @@
                 );
             }, []);
 
-            const moveUrlItem = useCallback((index, direction) => {
+            // 🔧 修正: 上下移動機能（元の配列で操作）
+            const moveUrlItem = useCallback((id, direction) => {
                 setUrlItems(prevItems => {
+                    const currentIndex = prevItems.findIndex(item => item.id === id);
+                    if (currentIndex === -1) return prevItems;
+                    
                     const newItems = [...prevItems];
-                    const itemToMove = newItems[index];
-                    const swapIndex = direction === 'up' ? index - 1 : index + 1;
+                    const swapIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
 
                     if (swapIndex < 0 || swapIndex >= newItems.length) {
-                        return newItems;
+                        return prevItems;
                     }
 
-                    newItems[index] = newItems[swapIndex];
-                    newItems[swapIndex] = itemToMove;
+                    // 要素を交換
+                    [newItems[currentIndex], newItems[swapIndex]] = [newItems[swapIndex], newItems[currentIndex]];
                     return newItems;
                 });
             }, []);
@@ -291,53 +294,6 @@
                     </header>
                     
                     <main className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-                        {/* 🎉 新機能: データ管理セクション */}
-                        <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-xl shadow-lg mb-8 border border-green-200">
-                            <h2 className="text-xl font-semibold mb-4 text-slate-700 flex items-center">
-                                🛠️ データ管理
-                                <span className="ml-2 px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">新機能</span>
-                            </h2>
-                            <div className="flex flex-wrap gap-3 mb-4">
-                                <button
-                                    onClick={exportData}
-                                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors flex items-center gap-2"
-                                >
-                                    📤 データをエクスポート
-                                </button>
-                                <button
-                                    onClick={() => document.getElementById('importFile').click()}
-                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors flex items-center gap-2"
-                                >
-                                    📥 データをインポート
-                                </button>
-                                <button
-                                    onClick={clearAllData}
-                                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors flex items-center gap-2"
-                                >
-                                    🗑️ 全データクリア
-                                </button>
-                                <input
-                                    type="file"
-                                    id="importFile"
-                                    accept=".json"
-                                    onChange={importData}
-                                    style={{ display: 'none' }}
-                                />
-                            </div>
-                            <div className="bg-white p-4 rounded-lg border border-blue-200">
-                                <h3 className="text-sm font-medium text-blue-800 mb-2 flex items-center">
-                                    💡 使い方ガイド
-                                </h3>
-                                <ul className="text-sm text-blue-700 space-y-1">
-                                    <li><strong>📤 エクスポート</strong>：現在のデータをJSONファイルとして保存できます</li>
-                                    <li><strong>📥 インポート</strong>：他のデバイスからエクスポートしたファイルを読み込めます</li>
-                                    <li><strong>🗑️ クリア</strong>：全てのデータを削除します（取り消し不可）</li>
-                                    <li><strong>👥 共有</strong>：このサイトのURLを教えるだけで、友人も個別にデータ管理可能</li>
-                                    <li><strong>💬 新機能</strong>：各URLにコメントを追加できるようになりました！</li>
-                                </ul>
-                            </div>
-                        </div>
-
                         <div className="bg-white p-6 rounded-xl shadow-lg mb-8">
                             <h2 className="text-xl font-semibold mb-4 text-slate-700">新しいURLを追加</h2>
                             <UrlInput onAdd={addUrlItem} />
@@ -450,6 +406,53 @@
                             onMove={moveUrlItem}
                             onUpdateComment={updateComment}
                         />
+
+                        {/* 🔧 修正: データ管理セクションを最下部に移動 */}
+                        <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-xl shadow-lg mt-8 border border-green-200">
+                            <h2 className="text-xl font-semibold mb-4 text-slate-700 flex items-center">
+                                🛠️ データ管理
+                                <span className="ml-2 px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">新機能</span>
+                            </h2>
+                            <div className="flex flex-wrap gap-3 mb-4">
+                                <button
+                                    onClick={exportData}
+                                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors flex items-center gap-2"
+                                >
+                                    📤 データをエクスポート
+                                </button>
+                                <button
+                                    onClick={() => document.getElementById('importFile').click()}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors flex items-center gap-2"
+                                >
+                                    📥 データをインポート
+                                </button>
+                                <button
+                                    onClick={clearAllData}
+                                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors flex items-center gap-2"
+                                >
+                                    🗑️ 全データクリア
+                                </button>
+                                <input
+                                    type="file"
+                                    id="importFile"
+                                    accept=".json"
+                                    onChange={importData}
+                                    style={{ display: 'none' }}
+                                />
+                            </div>
+                            <div className="bg-white p-4 rounded-lg border border-blue-200">
+                                <h3 className="text-sm font-medium text-blue-800 mb-2 flex items-center">
+                                    💡 使い方ガイド
+                                </h3>
+                                <ul className="text-sm text-blue-700 space-y-1">
+                                    <li><strong>📤 エクスポート</strong>：現在のデータをJSONファイルとして保存できます</li>
+                                    <li><strong>📥 インポート</strong>：他のデバイスからエクスポートしたファイルを読み込めます</li>
+                                    <li><strong>🗑️ クリア</strong>：全てのデータを削除します（取り消し不可）</li>
+                                    <li><strong>👥 共有</strong>：このサイトのURLを教えるだけで、友人も個別にデータ管理可能</li>
+                                    <li><strong>💬 新機能</strong>：各URLにコメントを追加できるようになりました！</li>
+                                </ul>
+                            </div>
+                        </div>
                     </main>
                 </div>
             );
@@ -645,32 +648,32 @@
 
             return (
                 <div className="space-y-4">
-                    {items.map((item) => {
-                        const originalIndex = allItems.findIndex(originalItem => originalItem.id === item.id);
-                        return (
-                            <UrlItem
-                                key={item.id}
-                                item={item}
-                                index={originalIndex}
-                                onDelete={onDelete}
-                                onToggleRead={onToggleRead}
-                                onSetRating={onSetRating}
-                                onSetPriority={onSetPriority}
-                                onMove={onMove}
-                                onUpdateComment={onUpdateComment}
-                                canMoveUp={originalIndex > 0}
-                                canMoveDown={originalIndex < allItems.length - 1}
-                            />
-                        );
-                    })}
+                    {items.map((item) => (
+                        <UrlItem
+                            key={item.id}
+                            item={item}
+                            allItems={allItems}
+                            onDelete={onDelete}
+                            onToggleRead={onToggleRead}
+                            onSetRating={onSetRating}
+                            onSetPriority={onSetPriority}
+                            onMove={onMove}
+                            onUpdateComment={onUpdateComment}
+                        />
+                    ))}
                 </div>
             );
         };
 
-        // 🎉 新機能対応: UrlItem コンポーネント（コメント欄対応）
-        const UrlItem = ({ item, index, onDelete, onToggleRead, onSetRating, onSetPriority, onMove, onUpdateComment, canMoveUp, canMoveDown }) => {
+        // 🔧 修正: UrlItem コンポーネント（上下移動修正、コメント欄対応）
+        const UrlItem = ({ item, allItems, onDelete, onToggleRead, onSetRating, onSetPriority, onMove, onUpdateComment }) => {
             const [isEditingComment, setIsEditingComment] = useState(false);
             const [commentText, setCommentText] = useState(item.comment || '');
+            
+            // 🔧 修正: 元の配列での位置を取得
+            const originalIndex = allItems.findIndex(originalItem => originalItem.id === item.id);
+            const canMoveUp = originalIndex > 0;
+            const canMoveDown = originalIndex < allItems.length - 1;
 
             const formatDate = (dateString) => {
                 try {
@@ -796,11 +799,12 @@
                             </div>
                         </div>
                         <div className="flex flex-col gap-2 ml-4">
+                            {/* 🔧 修正: 上下移動ボタン（IDベースで修正） */}
                             <div className="flex gap-1">
                                 {canMoveUp && (
                                     <button
-                                        onClick={() => onMove(index, 'up')}
-                                        className="p-1 text-slate-400 hover:text-slate-600"
+                                        onClick={() => onMove(item.id, 'up')}
+                                        className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded"
                                         title="上に移動"
                                     >
                                         <ArrowUpIcon className="h-4 w-4" />
@@ -808,8 +812,8 @@
                                 )}
                                 {canMoveDown && (
                                     <button
-                                        onClick={() => onMove(index, 'down')}
-                                        className="p-1 text-slate-400 hover:text-slate-600"
+                                        onClick={() => onMove(item.id, 'down')}
+                                        className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded"
                                         title="下に移動"
                                     >
                                         <ArrowDownIcon className="h-4 w-4" />
