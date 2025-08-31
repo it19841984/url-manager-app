@@ -4,9 +4,660 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>読みたいものリスト 🔥</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        h1 {
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            margin: 10px 0;
+            padding: 0 20px;
+        }
+
+        .description {
+            text-align: center;
+            color: #888;
+            margin-bottom: 30px;
+            padding: 0 20px;
+        }
+
+        .user-info {
+            text-align: center;
+            padding: 10px 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+
+        .export-import-controls {
+            margin: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .export-btn, .import-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .export-btn {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .export-btn:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .import-btn {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .import-btn:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .user-guide {
+            margin: 20px;
+            padding: 20px;
+            background-color: #e8f4fd;
+            border-radius: 10px;
+            border-left: 4px solid #007bff;
+        }
+
+        .user-guide h3 {
+            color: #007bff;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .user-guide ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .user-guide li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .user-guide li:before {
+            content: "•";
+            color: #007bff;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        .form-container {
+            padding: 30px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .form-container h2 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 1.5em;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        input[type="url"], input[type="text"], select {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            min-width: 200px;
+        }
+
+        input[type="url"]:focus, input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        #addGenreBtn {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            font-size: 14px;
+            padding: 10px 16px;
+        }
+
+        .search-container, .filter-container {
+            padding: 20px 30px;
+            background-color: #f8f9fa;
+        }
+
+        .search-container input, .filter-container select {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            display: block;
+        }
+
+        .website-list {
+            padding: 30px;
+            min-height: 200px;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #888;
+            font-style: italic;
+            margin-top: 50px;
+            font-size: 1.1em;
+        }
+
+        .website-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .website-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .website-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .website-url {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1em;
+            word-break: break-all;
+        }
+
+        .website-url:hover {
+            text-decoration: underline;
+        }
+
+        .website-genre {
+            display: inline-block;
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            width: fit-content;
+        }
+
+        .delete-btn {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            padding: 8px 15px;
+            font-size: 14px;
+            border-radius: 6px;
+            margin-left: 15px;
+            flex-shrink: 0;
+        }
+
+        .delete-btn:hover {
+            background: linear-gradient(135deg, #c82333, #bd2130);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 2em;
+                padding: 20px;
+            }
+            
+            .form-container, .website-list, .search-container, .filter-container {
+                padding: 20px;
+            }
+            
+            .form-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            input[type="url"], input[type="text"], select {
+                min-width: auto;
+                width: 100%;
+            }
+            
+            .website-item {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 15px;
+            }
+            
+            .delete-btn {
+                margin-left: 0;
+                align-self: flex-end;
+            }
+            
+            .export-import-controls {
+                flex-direction: column;
+                align-items: center;
+                margin: 15px;
+            }
+            
+            .export-btn, .import-btn {
+                width: 80%;
+                max-width: 250px;
+            }
+            
+            .user-guide {
+                margin: 15px;
+                padding: 15px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div id="root"></div>
+    <div class="container">
+        <h1>読みたいものリスト 🔥</h1>
+        <p class="subtitle">My favorite web site list</p>
+        <p class="description">気になるWebサイトをリストアップして、管理しましょう。</p>
+        
+        <!-- ユーザー情報表示 -->
+        <div class="user-info">
+            <span id="userIdDisplay"></span>
+        </div>
+
+        <!-- エクスポート・インポート機能 -->
+        <div class="export-import-controls">
+            <button id="exportBtn" class="export-btn">📤 データをエクスポート</button>
+            <button id="importBtn" class="import-btn">📥 データをインポート</button>
+            <input type="file" id="importFile" accept=".json" style="display: none;">
+        </div>
+
+        <!-- 使い方説明 -->
+        <div class="user-guide">
+            <h3>💡 使い方</h3>
+            <ul>
+                <li><strong>データの保存</strong>：入力したデータは自動的にブラウザに保存されます</li>
+                <li><strong>エクスポート</strong>：📤ボタンでデータをファイルとして保存できます</li>
+                <li><strong>インポート</strong>：📥ボタンで他のデバイスからデータを移行できます</li>
+                <li><strong>友人と共有</strong>：このサイトのURLを教えるだけで、みんな個別にデータ管理できます</li>
+            </ul>
+        </div>
+
+        <div class="form-container">
+            <h2>新しいURLを追加</h2>
+            <form id="websiteForm">
+                <div class="form-group">
+                    <input type="url" id="urlInput" placeholder="URL" required>
+                </div>
+                <div class="form-group">
+                    <select id="genreSelect">
+                        <option value="未分類">未分類</option>
+                    </select>
+                    <button type="button" id="addGenreBtn">+ 新しいジャンルを追加</button>
+                </div>
+                <button type="submit">追加</button>
+            </form>
+        </div>
+
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="検索">
+        </div>
+
+        <div class="filter-container">
+            <select id="genreFilter">
+                <option value="all">すべてのジャンル</option>
+            </select>
+        </div>
+
+        <div id="websiteList" class="website-list">
+            <p class="empty-message">リストは空です<br>上部のフォームからURLを追加してください。</p>
+        </div>
+    </div>
+
+    <script>
+        let websites = [];
+        let genres = ['未分類'];
+
+        // ユーザーID生成・取得
+        function getUserId() {
+            let userId = localStorage.getItem('userId');
+            if (!userId) {
+                userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('userId', userId);
+            }
+            return userId;
+        }
+
+        // ユーザーID表示
+        function displayUserId() {
+            const userId = getUserId();
+            const displayElement = document.getElementById('userIdDisplay');
+            displayElement.textContent = `ユーザーID: ${userId.substr(-8)}`;
+        }
+
+        // データ保存
+        function saveWebsites() {
+            const userId = getUserId();
+            const userData = {
+                userId: userId,
+                websites: websites,
+                genres: genres,
+                lastModified: new Date().toISOString(),
+                appVersion: '1.0'
+            };
+            
+            localStorage.setItem('userData', JSON.stringify(userData));
+            localStorage.setItem('websites', JSON.stringify(websites)); // 既存互換性のため
+            localStorage.setItem('genres', JSON.stringify(genres)); // 既存互換性のため
+        }
+
+        // データ読み込み
+        function loadWebsites() {
+            const userData = localStorage.getItem('userData');
+            if (userData) {
+                const data = JSON.parse(userData);
+                genres = data.genres || ['未分類'];
+                return data.websites || [];
+            }
+            
+            // 旧データとの互換性
+            const oldWebsites = localStorage.getItem('websites');
+            const oldGenres = localStorage.getItem('genres');
+            
+            if (oldWebsites) {
+                websites = JSON.parse(oldWebsites);
+            }
+            if (oldGenres) {
+                genres = JSON.parse(oldGenres);
+            }
+            
+            return websites || [];
+        }
+
+        // エクスポート機能
+        function exportData() {
+            const userId = getUserId();
+            const userData = {
+                userId: userId,
+                websites: websites,
+                genres: genres,
+                exportDate: new Date().toISOString(),
+                appVersion: '1.0'
+            };
+            
+            const dataStr = JSON.stringify(userData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `my-websites-${userId.substr(-8)}-${new Date().toISOString().substr(0,10)}.json`;
+            link.click();
+        }
+
+        // インポート機能
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    
+                    if (importedData.websites && Array.isArray(importedData.websites)) {
+                        const confirmMessage = `${importedData.websites.length}個のWebサイトをインポートしますか？\n現在のデータは上書きされます。`;
+                        
+                        if (confirm(confirmMessage)) {
+                            websites = importedData.websites;
+                            genres = importedData.genres || ['未分類'];
+                            saveWebsites();
+                            displayWebsites();
+                            updateGenreFilter();
+                            updateGenreSelect();
+                            alert('データのインポートが完了しました！');
+                        }
+                    } else {
+                        alert('無効なファイル形式です。');
+                    }
+                } catch (error) {
+                    alert('ファイルの読み込みに失敗しました。');
+                    console.error('Import error:', error);
+                }
+            };
+            reader.readAsText(file);
+            
+            // ファイル選択をリセット
+            event.target.value = '';
+        }
+
+        // Webサイト追加
+        function addWebsite() {
+            const urlInput = document.getElementById('urlInput');
+            const genreSelect = document.getElementById('genreSelect');
+            
+            const url = urlInput.value.trim();
+            const genre = genreSelect.value;
+            
+            if (url) {
+                // 重複チェック
+                const exists = websites.some(site => site.url === url);
+                if (exists) {
+                    alert('このURLは既に追加されています。');
+                    return;
+                }
+                
+                const website = {
+                    url: url,
+                    genre: genre,
+                    addedAt: new Date().toISOString()
+                };
+                
+                websites.push(website);
+                saveWebsites();
+                displayWebsites();
+                updateGenreFilter();
+                
+                // フォームリセット
+                urlInput.value = '';
+                genreSelect.value = '未分類';
+            }
+        }
+
+        // Webサイト削除
+        function deleteWebsite(index) {
+            if (confirm('このWebサイトを削除しますか？')) {
+                websites.splice(index, 1);
+                saveWebsites();
+                displayWebsites();
+                updateGenreFilter();
+            }
+        }
+
+        // Webサイト表示
+        function displayWebsites() {
+            const websiteList = document.getElementById('websiteList');
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const selectedGenre = document.getElementById('genreFilter').value;
+            
+            let filteredWebsites = websites.filter(website => {
+                const matchesSearch = website.url.toLowerCase().includes(searchTerm);
+                const matchesGenre = selectedGenre === 'all' || website.genre === selectedGenre;
+                return matchesSearch && matchesGenre;
+            });
+            
+            if (filteredWebsites.length === 0) {
+                websiteList.innerHTML = '<p class="empty-message">リストは空です<br>上部のフォームからURLを追加してください。</p>';
+                return;
+            }
+            
+            const websiteHTML = filteredWebsites.map((website, index) => {
+                const originalIndex = websites.indexOf(website);
+                return `
+                    <div class="website-item">
+                        <div class="website-info">
+                            <a href="${website.url}" target="_blank" class="website-url">${website.url}</a>
+                            <span class="website-genre">${website.genre}</span>
+                        </div>
+                        <button class="delete-btn" onclick="deleteWebsite(${originalIndex})">削除</button>
+                    </div>
+                `;
+            }).join('');
+            
+            websiteList.innerHTML = websiteHTML;
+        }
+
+        // ジャンル追加
+        function addGenre() {
+            const newGenre = prompt('新しいジャンル名を入力してください:');
+            if (newGenre && newGenre.trim()) {
+                const trimmedGenre = newGenre.trim();
+                if (!genres.includes(trimmedGenre)) {
+                    genres.push(trimmedGenre);
+                    saveWebsites();
+                    updateGenreSelect();
+                    updateGenreFilter();
+                    
+                    // 新しいジャンルを選択
+                    document.getElementById('genreSelect').value = trimmedGenre;
+                } else {
+                    alert('そのジャンルは既に存在します。');
+                }
+            }
+        }
+
+        // ジャンル選択肢更新
+        function updateGenreSelect() {
+            const genreSelect = document.getElementById('genreSelect');
+            genreSelect.innerHTML = genres.map(genre => 
+                `<option value="${genre}">${genre}</option>`
+            ).join('');
+        }
+
+        // ジャンルフィルター更新
+        function updateGenreFilter() {
+            const genreFilter = document.getElementById('genreFilter');
+            const usedGenres = [...new Set(websites.map(site => site.genre))];
+            
+            genreFilter.innerHTML = '<option value="all">すべてのジャンル</option>' + 
+                usedGenres.map(genre => 
+                    `<option value="${genre}">${genre}</option>`
+                ).join('');
+        }
+
+        // イベントリスナー設定
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初期化
+            displayUserId();
+            websites = loadWebsites();
+            updateGenreSelect();
+            displayWebsites();
+            updateGenreFilter();
+            
+            // フォーム送信
+            document.getElementById('websiteForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                addWebsite();
+            });
+            
+            // ジャンル追加
+            document.getElementById('addGenreBtn').addEventListener('click', addGenre);
+            
+            // 検索
+            document.getElementById('searchInput').addEventListener('input', displayWebsites);
+            
+            // フィルター
+            document.getElementById('genreFilter').addEventListener('change', displayWebsites);
+            
+            // エクスポート・インポート
+            document.getElementById('exportBtn').addEventListener('click', exportData);
+            document.getElementById('importBtn').addEventListener('click', () => {
+                document.getElementById('importFile').click();
+            });
+            document.getElementById('importFile').addEventListener('change', importData);
+        });
+    </script>
 </body>
 </html>
